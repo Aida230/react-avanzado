@@ -14,8 +14,50 @@ const defaultState: State = {
 };
 
 
+
+export function auth(state = defaultState.auth, action: Actions): State["auth"] {
+  switch (action.type) {
+    case "auth/login":
+      return true;
+    case "auth/logout":  //solamente devolvemos la parte del booleano
+      return false;
+    default:
+      return state;
+  }
+}
+
+export function adverts(state = defaultState.adverts, action: Actions): State["adverts"] {
+  switch (action.type) {
+    case "adverts/loaded":
+      return action.payload;
+    case "adverts/created":
+      //return state.concat(action.payload)
+      return [ ...state, action.payload ]
+    default:
+      return state
+  }
+}
+
+
 //vamos a crear nuestro reducer
 
+//export const reducer = combineReducers({ auth, adverts });
+
+/*
+Esto es lo mismo que el combineReducers
+export function reducer(state = defaultState, action: Actions): State {
+  return {
+    auth: auth(state.auth, action),
+    adverts: adverts(state.adverts, action),
+  }
+}
+*/
+
+
+
+
+
+/*
 export function reducer(state = defaultState, action: Actions): State {
   switch (action.type) {
     case 'auth/login':
@@ -33,3 +75,4 @@ export function reducer(state = defaultState, action: Actions): State {
       return state;  //siempre tenemos que acordarnos de devolver el estado para que no sea undefined
   }
 }
+*/
