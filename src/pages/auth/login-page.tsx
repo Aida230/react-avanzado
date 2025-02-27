@@ -1,6 +1,6 @@
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { useAuth } from "./context";
+//import { useAuth } from "./context";
 import { login } from "./service";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -11,6 +11,8 @@ import FormField from "@/components/shared/form-field";
 import ActionButton from "@/components/shared/action-button";
 import Logo from "@/components/shared/nodepop-react";
 import type { Credentials } from "./types";
+import { useAppDispatch } from "@/store";
+import { authLogin } from "@/store/actions";
 
 function LoginForm({
   onSubmit,
@@ -100,7 +102,8 @@ function LoginForm({
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { onLogin } = useAuth();
+  const dispatch = useAppDispatch();
+  //const { onLogin } = useAuth();
 
   return (
     <div className="mx-auto h-dvh max-w-md">
@@ -114,7 +117,8 @@ export default function LoginPage() {
         <LoginForm
           onSubmit={async ({ remember, ...credentials }) => {
             await login(credentials, remember);
-            onLogin();
+            dispatch(authLogin())
+            //onLogin();
             navigate(location.state?.from ?? "/", { replace: true });
           }}
         />

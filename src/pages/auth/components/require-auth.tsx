@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router";
-import { useAuth } from "../context";
+//import { useAuth } from "../context";
+import { useAppSelector } from "@/store";
+import { getIsLogged } from "@/store/selectors";
 
 export default function RequireAuth({ children }: { children: ReactNode }) {
-  const { isLogged } = useAuth();
+  const isLogged = useAppSelector(getIsLogged);
+  //const { isLogged } = useAuth();
   const location = useLocation();
 
   return isLogged ? (

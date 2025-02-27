@@ -2,7 +2,7 @@ import type { Advert } from "../pages/adverts/types"
 import type { Actions } from "./actions";
 //en los reducer lo primero que hacemos es definir el estado, el objeto con la forma de mi estado
 
-type State = {
+export type State = {
   auth: boolean;
   adverts: Advert[];
 };

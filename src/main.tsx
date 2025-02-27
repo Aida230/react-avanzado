@@ -4,16 +4,15 @@ import { BrowserRouter } from "react-router";
 import "./index.css";
 import storage from "./utils/storage";
 import { setAuthorizationHeader } from "./api/client";
-import { AuthProvider } from "./pages/auth/context";
+//import { AuthProvider } from "./pages/auth/context";
 import App from "./app";
 import { ErrorBoundary } from "./pages/error/error-boundary";
 
 
-//ceamos el store
+//creamos el store
 import configureStore from "./store";
+import { Provider } from "react-redux";
 
-const store = configureStore();
-console.log(store)
 
 
 
@@ -22,14 +21,17 @@ if (accessToken) {
   setAuthorizationHeader(accessToken);
 }
 
+
+const store = configureStore({ auth: !!accessToken });
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <ErrorBoundary>
-        <AuthProvider defaultIsLogged={!!accessToken}>
+    <Provider store={store}>
+      <BrowserRouter>
+        <ErrorBoundary>
           <App />
-        </AuthProvider>
-      </ErrorBoundary>
-    </BrowserRouter>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </Provider>
   </StrictMode>,
 );
