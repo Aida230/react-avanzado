@@ -12,7 +12,7 @@ import ActionButton from "@/components/shared/action-button";
 import Logo from "@/components/shared/nodepop-react";
 import type { Credentials } from "./types";
 import { useAppDispatch } from "@/store";
-import { authLogin } from "@/store/actions";
+import { AuthLoginPending, AuthLoginFulfilled, AuthLoginRejected } from "@/store/actions";
 
 function LoginForm({
   onSubmit,
@@ -23,6 +23,7 @@ function LoginForm({
     email: "",
     password: "",
   });
+  const dispatch = useAppDispatch();//metemos aqui es appDispatch para poder meter el error
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +42,8 @@ function LoginForm({
       await onSubmit({ ...credentials, remember });
     } catch (error) {
       if (isApiClientError(error)) {
-        toast.error(error.message);
+        dispatch(AuthLoginRejected(error)) //dispatch para que en caso de error nos de el rejected de redux
+        //toast.error(error.message);
       } else {
         toast.error("Unexpected error");
       }
@@ -116,8 +118,9 @@ export default function LoginPage() {
         </header>
         <LoginForm
           onSubmit={async ({ remember, ...credentials }) => {
+            dispatch(AuthLoginPending())
             await login(credentials, remember);
-            dispatch(authLogin())
+            dispatch(AuthLoginFulfilled())
             //onLogin();
             navigate(location.state?.from ?? "/", { replace: true });
           }}

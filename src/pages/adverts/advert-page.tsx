@@ -11,6 +11,7 @@ import ActionButton from "@/components/shared/action-button";
 import imagePlacehoder from "@/assets/placeholder.webp";
 //import { useAppDispatch, useAppSelector } from "@/store";
 //import { getAdvertSelector } from "@/store/selectors";
+//import { AdvertsLoaded } from "@/store/actions";
 
 const tagsClassNames: Record<string, string> = {
   lifestyle: "bg-chart-1",
@@ -87,6 +88,7 @@ export default function AdvertPage() {
       try {
         setLoading(true);
         const advert = await getAdvert(advertId);
+        //dispatch(AdvertsLoaded(advert))
         setAdvert(advert);
       } catch (error) {
         handleError(error);

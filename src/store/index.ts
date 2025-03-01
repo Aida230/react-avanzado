@@ -1,8 +1,10 @@
-import { combineReducers, createStore } from "redux";
+import { applyMiddleware, combineReducers, createStore } from "redux";
 import *as reducers  from "./reducers";
 import { useDispatch, useSelector } from "react-redux";
 import type { State } from './reducers'
 import { composeWithDevTools } from "@redux-devtools/extension"
+import * as thunk from "redux-thunk"
+import type { Actions } from "./actions";
 
 //vamos a crear el store
 
@@ -11,7 +13,7 @@ export default function configureStore(preloadedState: Partial<State>) {
   const store = createStore(
     rootReducer,
     preloadedState as never,
-    composeWithDevTools(),
+    composeWithDevTools(applyMiddleware(thunk.withExtraArgument<State, Actions>())), //aplicamos el middleware de redux-thunk
   );
   return store;
 };
@@ -29,6 +31,8 @@ export type AppDispatch = AppStore["dispatch"];
 
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
+
+export type AppThunk<ReturnType = void> = thunk.ThunkAction<ReturnType, RootState, undefined, Actions>;
 
 
 

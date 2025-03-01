@@ -1,23 +1,31 @@
 import type { Advert } from "../pages/adverts/types"
 import type { Actions } from "./actions";
-//en los reducer lo primero que hacemos es definir el estado, el objeto con la forma de mi estado
 
+//en los reducer lo primero que hacemos es definir el estado, el objeto con la forma de mi estado
 export type State = {
   auth: boolean;
   adverts: Advert[];
+  ui: {
+    pending: boolean,
+    error: Error | null
+  }
 };
 
 //cuando inicialicemos el estado vamos a estar sin autenticar y no vamos a tener anuncios
 const defaultState: State = {
   auth: false,
   adverts: [],
+  ui: {
+    pending: false,
+    error: null
+  }
 };
 
 
 
 export function auth(state = defaultState.auth, action: Actions): State["auth"] {
   switch (action.type) {
-    case "auth/login":
+    case "auth/login/fulfilled":
       return true;
     case "auth/logout":  //solamente devolvemos la parte del booleano
       return false;
@@ -26,6 +34,7 @@ export function auth(state = defaultState.auth, action: Actions): State["auth"] 
   }
 }
 
+//reducer para el listado de anuncios
 export function adverts(state = defaultState.adverts, action: Actions): State["adverts"] {
   switch (action.type) {
     case "adverts/loaded":
@@ -36,43 +45,21 @@ export function adverts(state = defaultState.adverts, action: Actions): State["a
     default:
       return state
   }
-}
+};
 
-
-//vamos a crear nuestro reducer
-
-//export const reducer = combineReducers({ auth, adverts });
-
-/*
-Esto es lo mismo que el combineReducers
-export function reducer(state = defaultState, action: Actions): State {
-  return {
-    auth: auth(state.auth, action),
-    adverts: adverts(state.adverts, action),
-  }
-}
-*/
-
-
-
-
-
-/*
-export function reducer(state = defaultState, action: Actions): State {
+export function ui(state = defaultState.ui, action: Actions): State["ui"] {
   switch (action.type) {
-    case 'auth/login':
-      return { ...state, auth: true };
-      //return { adverts: state.adverts, auth: true};
-    case 'auth/logout':
-      return { ...state, auth: false };
-    case 'adverts/loaded':
-      return { ...state, adverts: action.payload };
-    case 'adverts/created':
-      //return { ...state, adverts: state.adverts.concat(action.payload) };
-      return { ...state, adverts: [ ...state.adverts, action.payload ]} //tenemos un nuevo array que tiene los elementos que haya en el estado y le agregamos el que acabamos de crear
-
-    default:
-      return state;  //siempre tenemos que acordarnos de devolver el estado para que no sea undefined
+    case "ui/reset-error":
+      return { ...state, error: null }
+    case "auth/login/pending":
+      return { pending: true, error: null };
+    case "auth/login/fulfilled":
+      return { pending: false, error: null };
+    case "auth/login/rejected":
+      return { pending: false, error: action.payload };
+      default:
+        return state;
   }
 }
-*/
+
+
