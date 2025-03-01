@@ -7,7 +7,10 @@ import { getAdverts } from "./service";
 import { filterAdverts } from "./filters";
 import FiltersInputs from "./components/filters-inputs";
 import { AdvertCard } from "./components/advert-card";
-import type { Advert, Filters } from "./types";
+import type { Filters } from "./types";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { AdvertsLoaded } from "@/store/actions";
+import { getAdvertsSelector } from "@/store/selectors";
 
 function NoAdverts() {
   return (
@@ -47,7 +50,9 @@ function NoMatches() {
 
 export default function AdvertsPage() {
   const navigate = useNavigate();
-  const [adverts, setAdverts] = useState<Advert[] | null>(null);
+  //const [adverts, setAdverts] = useState<Advert[] | null>(null);
+  const adverts = useAppSelector(getAdvertsSelector);
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [, setError] = useState<null>(null);
   const [filters, setFilters] = useState<Filters | null>(null);
@@ -57,7 +62,9 @@ export default function AdvertsPage() {
       try {
         setIsLoading(true);
         const adverts = await getAdverts();
-        setAdverts(adverts);
+        //setAdverts(adverts);
+        dispatch(AdvertsLoaded(adverts))
+
       } catch (error) {
         if (isApiClientError(error)) {
           if (error.code === "UNAUTHORIZED") {
@@ -101,6 +108,7 @@ export default function AdvertsPage() {
           {filteredAdverts.map((advert) => (
             <li key={advert.id}>
               <Link to={advert.id}>
+              {/*<Link to={advert.id.toString()}>*/}
                 <AdvertCard advert={advert} />
               </Link>
             </li>
@@ -110,3 +118,5 @@ export default function AdvertsPage() {
     </div>
   );
 }
+
+//<Link to={advert.id.toString()}> esto es para cuando cambie el tipo del id de string a number para poder utilizar el selector

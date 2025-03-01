@@ -2,6 +2,7 @@ import { combineReducers, createStore } from "redux";
 import *as reducers  from "./reducers";
 import { useDispatch, useSelector } from "react-redux";
 import type { State } from './reducers'
+import { composeWithDevTools } from "@redux-devtools/extension"
 
 //vamos a crear el store
 
@@ -9,12 +10,8 @@ export default function configureStore(preloadedState: Partial<State>) {
   const rootReducer = combineReducers(reducers);
   const store = createStore(
     rootReducer,
-    //@ts-expect-error type
-    preloadedState,
-    //@ts-expect-error type
-    window.__REDUX_DEVTOOLS_EXTENSION__ && 
-    //@ts-expect-error type
-      window.__REDUX_DEVTOOLS_EXTENSION__()
+    preloadedState as never,
+    composeWithDevTools(),
   );
   return store;
 };

@@ -9,6 +9,8 @@ import { Euro, Trash2 } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import ActionButton from "@/components/shared/action-button";
 import imagePlacehoder from "@/assets/placeholder.webp";
+//import { useAppDispatch, useAppSelector } from "@/store";
+//import { getAdvertSelector } from "@/store/selectors";
 
 const tagsClassNames: Record<string, string> = {
   lifestyle: "bg-chart-1",
@@ -54,11 +56,14 @@ export default function AdvertPage() {
   const navigate = useNavigate();
   const params = useParams();
   const [advert, setAdvert] = useState<Advert | null>(null);
+  //const advert = useAppSelector(state => getAdvertSelector(state, params.advertId))
+  //const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const advertId = params.advertId ?? "";
+
 
   const handleError = useCallback(
     (error: unknown) => {
