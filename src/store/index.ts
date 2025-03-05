@@ -1,5 +1,5 @@
 import { applyMiddleware, combineReducers, createStore } from "redux";
-import *as reducers  from "./reducers";
+import * as reducers  from "./reducers";
 import { useDispatch, useSelector } from "react-redux";
 import type { State } from './reducers'
 import { composeWithDevTools } from "@redux-devtools/extension"
@@ -8,7 +8,7 @@ import type { Actions } from "./actions";
 
 //vamos a crear el store
 
-export default function configureStore(preloadedState: Partial<State>) {
+export default function configureStore(preloadedState?: Partial<State>) {
   const rootReducer = combineReducers(reducers);
   const store = createStore(
     rootReducer,

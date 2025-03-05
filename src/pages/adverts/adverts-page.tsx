@@ -105,8 +105,9 @@ export default function AdvertsPage() {
         <NoMatches />
       ) : (
         <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredAdverts.map((advert) => (
-            <li key={advert.id}>
+          {filteredAdverts.map((advert, index) => (    
+            <li key={`${advert.id}-${index}`}>
+            {/*<li key={advert.id}>*/}
               <Link to={advert.id}>
               {/*<Link to={advert.id.toString()}>*/}
                 <AdvertCard advert={advert} />
@@ -119,4 +120,4 @@ export default function AdvertsPage() {
   );
 }
 
-//<Link to={advert.id.toString()}> esto es para cuando cambie el tipo del id de string a number para poder utilizar el selector
+//<li key={`${advert.id}-${index}`}> utilizmo el index para asegurarnos que las claves sean unicas para cada elemento de la lista que se renderiza

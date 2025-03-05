@@ -11,7 +11,7 @@ export const getAdvertSelector = (state: RootState, advertId?: string) =>
   state.adverts.find((advert) => (advert.id) === (advertId));
 
 // Obtener todos los tags disponibles
-export const selectTags = (state: RootState): string[] => state.adverts.tags;
+//export const selectTags = (state: RootState): string[] => state.adverts.tags;
 
 
 export const getUi = (state: RootState) => state.ui;
