@@ -1,4 +1,7 @@
 import { isAxiosError } from "axios";
+import { getUi } from "@/store/selectors";
+import { uiResetError } from "@/store/actions";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 type ErrorCode =
   | "UNAUTHORIZED"
@@ -54,4 +57,17 @@ export class ApiClientError extends Error {
 
 export function isApiClientError(error: unknown): error is ApiClientError {
   return error instanceof ApiClientError;
+};
+
+// Hook para manejar el estado de error
+
+export function useErrorHandler() {
+  const { error } = useAppSelector(getUi);
+  const dispatch = useAppDispatch();
+
+  const resetError = () => {
+    dispatch(uiResetError());
+  };
+
+  return { error, resetError };
 }

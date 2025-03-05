@@ -1,4 +1,4 @@
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 //import { useAuth } from "./context";
 import { login } from "./service";
@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { isApiClientError } from "@/api/error";
+import { isApiClientError, useErrorHandler } from "@/api/error";
 import FormField from "@/components/shared/form-field";
 import ActionButton from "@/components/shared/action-button";
 import Logo from "@/components/shared/nodepop-react";
 import type { Credentials } from "./types";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { AuthLoginPending, AuthLoginFulfilled, AuthLoginRejected } from "@/store/actions";
+import { getUi } from "@/store/selectors";
 
 function LoginForm({
   onSubmit,
@@ -23,7 +24,10 @@ function LoginForm({
     email: "",
     password: "",
   });
-  const dispatch = useAppDispatch();//metemos aqui es appDispatch para poder meter el error
+
+  const dispatch = useAppDispatch();//metemos aqui es appDispatch
+  const { pending } = useAppSelector(getUi); //nos conectamos a redux para saber si estamos haciendo la llamada al pending
+  const { resetError } = useErrorHandler(); //hook para manejar errores
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -43,13 +47,15 @@ function LoginForm({
     } catch (error) {
       if (isApiClientError(error)) {
         dispatch(AuthLoginRejected(error)) //dispatch para que en caso de error nos de el rejected de redux
-        //toast.error(error.message);
+        toast.error(error.message);
       } else {
-        toast.error("Unexpected error");
+        //dispatch(uiResetError)
+        //toast.error("Unexpected error");
       }
     } finally {
       setSubmitting(false);
     }
+    resetError(); //Reseteamos el error antes de un nuevo intento
   };
 
   const { email, password } = credentials;
@@ -85,7 +91,7 @@ function LoginForm({
           Remember me next time
         </FormField>
         <ActionButton
-          disabled={!canSubmit || submitting}
+          disabled={!canSubmit || submitting || pending } 
           loading={submitting}
           className="w-full"
         >
@@ -105,7 +111,15 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const { error } = useAppSelector(getUi); //Obtener el error del estado de redux
   //const { onLogin } = useAuth();
+
+  //Mostrar el error si existe
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message); //si hay un error mostramos el mensaje de error
+    }
+  }, [error]);
 
   return (
     <div className="mx-auto h-dvh max-w-md">

@@ -11,5 +11,4 @@ export const getAdvertSelector = (state: RootState, advertId?: string) =>
   state.adverts.find((advert) => Number(advert.id) === Number(advertId));
 
 
-
-//export const getAdvertSelector = (state: RootState, advertId?: string) => state.adverts.find((advert) => advert.id === Number(advertId))//he cambiado el id en los tipos por number
+export const getUi = (state: RootState) => state.ui;
