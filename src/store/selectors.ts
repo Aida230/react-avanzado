@@ -8,7 +8,10 @@ export const getAdvertsSelector = (state: RootState) => state.adverts;
 
 //selector para sacar un anuncio especifico del almacen de redux
 export const getAdvertSelector = (state: RootState, advertId?: string) => 
-  state.adverts.find((advert) => Number(advert.id) === Number(advertId));
+  state.adverts.find((advert) => (advert.id) === (advertId));
+
+// Obtener todos los tags disponibles
+export const selectTags = (state: RootState): string[] => state.adverts.tags;
 
 
 export const getUi = (state: RootState) => state.ui;

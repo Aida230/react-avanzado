@@ -1,6 +1,6 @@
-import type { Advert } from "../pages/adverts/types";
+import type { Advert, Tags } from "../pages/adverts/types";
 
-//primero creaos las acciones que queremos manejar
+//primero creamos las acciones que queremos manejar
 
 //manejamos si el usuario esta logado o no
 
@@ -30,9 +30,25 @@ type AdvertsLoaded = {
   payload: Advert[],
 };
 
+
 type AdvertsCreated = {
   type: "adverts/created",
   payload: Advert;
+};
+
+type AdvertDetail = {
+  type: "advert/detail";
+  payload: Advert;
+};
+
+type AdvertsDeleted = {
+  type: "adverts/deleted";
+  payload: string; // ID del anuncio eliminado
+};
+
+type TagsLoaded = {
+  type: "tags/loaded";
+  payload: Tags; // Lista de tags disponibles
 };
 
 type UiResetError = {
@@ -74,12 +90,26 @@ export const AdvertsCreated = (advert: Advert): AdvertsCreated => ({
   payload: advert,
 });
 
+export const AdvertDetail = (advert: Advert): AdvertDetail => ({
+  type: "advert/detail",
+  payload: advert,
+})
+
+export const AdvertsDeleted = (advertId: string): AdvertsDeleted => ({
+  type: "adverts/deleted",
+  payload: advertId,
+});
+
+export const TagsLoaded = (tags: string[]): TagsLoaded => ({
+  type: "tags/loaded",
+  payload: tags,
+});
 
 export const uiResetError = (): UiResetError => ({
   type: "ui/reset-error",
 });
 
-export type Actions = AuthLoginPending | AuthLoginFulfilled | AuthLoginRejected | AuthLogout | AdvertsLoaded | AdvertsCreated | UiResetError;
+export type Actions = AuthLoginPending | AuthLoginFulfilled | AuthLoginRejected | AuthLogout | AdvertsLoaded | AdvertsCreated | AdvertDetail| AdvertsDeleted | TagsLoaded | UiResetError;
 
 
 

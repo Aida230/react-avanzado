@@ -1,10 +1,11 @@
-import type { Advert } from "../pages/adverts/types"
+import type { Advert, Tags } from "../pages/adverts/types"
 import type { Actions } from "./actions";
 
 //en los reducer lo primero que hacemos es definir el estado, el objeto con la forma de mi estado
 export type State = {
   auth: boolean;
   adverts: Advert[];
+  tags: Tags,
   ui: {
     pending: boolean,
     error: Error | null
@@ -15,6 +16,7 @@ export type State = {
 const defaultState: State = {
   auth: false,
   adverts: [],
+  tags: [] as Tags,
   ui: {
     pending: false,
     error: null
@@ -41,11 +43,26 @@ export function adverts(state = defaultState.adverts, action: Actions): State["a
       return action.payload;
     case "adverts/created":
       //return state.concat(action.payload)
-      return [ ...state, action.payload ]
+      return [ ...state, action.payload ];
+    case "advert/detail":
+      return [ ...state, action.payload]; //detalle del anuncio
+    case "adverts/deleted":
+      return state.filter(advert => (advert.id )!== action.payload);
     default:
       return state
   }
 };
+
+
+// Reducer para manejar los tags
+export function tags(state = defaultState.tags, action: Actions): State["tags"] {
+  switch (action.type) {
+    case "tags/loaded":
+      return action.payload;  // Cargamos los tags
+    default:
+      return state;
+  }
+}
 
 export function ui(state = defaultState.ui, action: Actions): State["ui"] {
   switch (action.type) {

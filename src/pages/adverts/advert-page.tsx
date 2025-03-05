@@ -1,23 +1,35 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { deleteAdvert, getAdvert } from "./service";
+import { deleteAdvert, getAdvert, getTags } from "./service";
 import { isApiClientError } from "@/api/error";
 import ConfirmationButton from "@/components/shared/confirmation-button";
-import type { Advert, Tags } from "./types";
+import type { Tags } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { Euro, Trash2 } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import ActionButton from "@/components/shared/action-button";
 import imagePlacehoder from "@/assets/placeholder.webp";
-//import { useAppDispatch, useAppSelector } from "@/store";
-//import { getAdvertSelector } from "@/store/selectors";
-//import { AdvertsLoaded } from "@/store/actions";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { getAdvertSelector } from "@/store/selectors";
+import {  AdvertDetail, AdvertsDeleted, } from "@/store/actions";
+import { TagsLoaded } from "@/store/actions";
+
 
 const tagsClassNames: Record<string, string> = {
   lifestyle: "bg-chart-1",
   mobile: "bg-chart-2",
   motor: "bg-chart-3",
   work: "bg-chart-4",
+};
+
+const loadTags = async (dispatch: ReturnType<typeof useAppDispatch>) => {
+  try {
+    // Asegúrate de que esta función devuelve los tags de la API o fuente de datos
+    const response: Tags = await getTags(); // Llamda al API para obtener los datos
+    dispatch(TagsLoaded(response)); // Despacha los tags a Redux
+  } catch (error) {
+    console.error("Error loading tags:", error);
+  }
 };
 
 const AdvertPrice = ({ price }: { price: number }) => (
@@ -56,14 +68,16 @@ const AdvertPhoto = ({
 export default function AdvertPage() {
   const navigate = useNavigate();
   const params = useParams();
-  const [advert, setAdvert] = useState<Advert | null>(null);
-  //const advert = useAppSelector(state => getAdvertSelector(state, params.advertId))
-  //const dispatch = useAppDispatch();
+  //const [advert, setAdvert] = useState<Advert | null>(null);
+  const dispatch = useAppDispatch();
+  const advertId = params.advertId ?? "";
+  // Acceder directamente al estado de redux
+  const advert = useAppSelector(state => getAdvertSelector(state, params.advertId));
+  const tags = useAppSelector(state => state.tags); //Los tags disponibles
   const [loading, setLoading] = useState(false);
   const [, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const advertId = params.advertId ?? "";
 
 
   const handleError = useCallback(
@@ -88,8 +102,7 @@ export default function AdvertPage() {
       try {
         setLoading(true);
         const advert = await getAdvert(advertId);
-        //dispatch(AdvertsLoaded(advert))
-        setAdvert(advert);
+        dispatch(AdvertDetail(advert));
       } catch (error) {
         handleError(error);
       } finally {
@@ -97,12 +110,22 @@ export default function AdvertPage() {
       }
     }
     loadAdvert();
-  }, [advertId, handleError]);
+  }, [advertId, dispatch, handleError]);
+
+  // Cargar los tags si no están disponibles en el estado
+  useEffect(() => {
+    if (tags.length === 0) {
+      loadTags(dispatch); // Solo cargar los tags si no están ya en el estado
+    }
+  }, [tags.length, dispatch]);
+
+
 
   const handleDelete = async () => {
     try {
       setDeleting(true);
       await deleteAdvert(advertId);
+      dispatch(AdvertsDeleted(advertId)) //aqui es donde despachamos las accion de borrar
       navigate("/adverts");
     } catch (error) {
       handleError(error);
