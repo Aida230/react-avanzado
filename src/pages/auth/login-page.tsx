@@ -1,21 +1,17 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-//import { useAuth } from "./context";
-//import { login } from "./service";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { isApiClientError, useErrorHandler } from "@/api/error";
+import { useErrorHandler } from "@/api/error";
 import FormField from "@/components/shared/form-field";
 import ActionButton from "@/components/shared/action-button";
 import Logo from "@/components/shared/nodepop-react";
 import type { Credentials } from "./types";
 import { useAppDispatch, useAppSelector } from "@/store";
-//import { AuthLoginPending, AuthLoginFulfilled, AuthLoginRejected } from "@/store/actions";
 import { getUi } from "@/store/selectors";
 import { authLogin } from "@/store/actions";
-//import { setAuthorizationHeader } from "@/api/client";
 
 function LoginForm({
   onSubmit,
@@ -27,10 +23,8 @@ function LoginForm({
     password: "",
   });
 
-  //const dispatch = useAppDispatch();//metemos aqui es appDispatch
   const { pending } = useAppSelector(getUi); //nos conectamos a redux para saber si estamos haciendo la llamada al pending
   const { resetError } = useErrorHandler(); //hook para manejar errores
-  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCredentials((credentials) => ({
@@ -47,21 +41,8 @@ function LoginForm({
     //await dispatch(authLogin(credentials))
     //navigate(location.state?.from ?? "/", { replace: true });
 
-    try {
-      setSubmitting(true);
-      await onSubmit({ ...credentials, remember });
-    } catch (error) {
-      if (isApiClientError(error)) {
-        //dispatch(AuthLoginRejected(error)) //dispatch para que en caso de error nos de el rejected de redux
-        toast.error(error.message);
-      } else {
-        //dispatch(uiResetError)
-        //toast.error("Unexpected error");
-      }
-    } finally {
-      setSubmitting(false);
-    }
     resetError(); //Reseteamos el error antes de un nuevo intento
+    await onSubmit({ ...credentials, remember });
   };
 
   const { email, password } = credentials;
@@ -97,11 +78,11 @@ function LoginForm({
           Remember me next time
         </FormField>
         <ActionButton
-          disabled={!canSubmit || submitting || pending } 
-          loading={submitting}
+          disabled={!canSubmit || pending } 
+          loading={pending}
           className="w-full"
         >
-          {submitting
+          {pending
             ? "Please wait"
             : canSubmit
               ? "Log in to Nodepop"
@@ -116,7 +97,7 @@ function LoginForm({
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();//Guarda el estado de redux en dispatch
   const { error } = useAppSelector(getUi); //Obtener el error del estado de redux
   //const { onLogin } = useAuth();
 

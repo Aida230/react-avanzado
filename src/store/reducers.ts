@@ -63,7 +63,7 @@ export function tags(state = defaultState.tags, action: Actions): State["tags"] 
       return state;
   }
 }
-
+// Reducer para manejar la UI
 export function ui(state = defaultState.ui, action: Actions): State["ui"] {
   switch (action.type) {
     case "ui/reset-error":

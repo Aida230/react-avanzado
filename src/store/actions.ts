@@ -77,7 +77,7 @@ export const AuthLoginRejected = (error: Error): AuthLoginRejected => ({
   payload: error
 });
 
-
+//Middleware
 export function authLogin(credentials: Credentials, remember: boolean): AppThunk<Promise<void>> {
   return async function (dispatch) {
     dispatch(AuthLoginPending());

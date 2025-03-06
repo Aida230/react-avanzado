@@ -1,4 +1,9 @@
+import type { Credentials } from "@/pages/auth/types";
 import type { Advert, Tags } from "../pages/adverts/types";
+import { login } from "@/pages/auth/service";
+import { isApiClientError } from "@/api/error";
+//import type { ThunkAction } from "redux-thunk";
+import type { AppThunk } from ".";
 
 //primero creamos las acciones que queremos manejar
 
@@ -126,6 +131,20 @@ export const AuthLoginRejected = (error: Error): AuthLoginRejected => ({
   payload: error
 });
 
+//Middleware
+export function authLogin(credentials: Credentials, remember: boolean): AppThunk<Promise<void>> {
+  return async function (dispatch) {
+    dispatch(AuthLoginPending());
+    try {
+      await login(credentials, remember);
+      dispatch(AuthLoginFulfilled())
+    } catch (error) {
+      if (isApiClientError(error)) {
+        dispatch(AuthLoginRejected(error))
+      } 
+    }
+  }
+}
 
 // actions creators para logout
 
@@ -149,6 +168,7 @@ export const AdvertsLoadedRejectd = (adverts: Advert[]): AdvertsLoadedRejected =
   type: "adverts/loaded/Rejected",
   payload: adverts,
 });
+
 
 //Action creators para Created
 
