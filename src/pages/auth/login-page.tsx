@@ -1,7 +1,7 @@
 import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 //import { useAuth } from "./context";
-import { login } from "./service";
+//import { login } from "./service";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Toaster } from "@/components/ui/sonner";
@@ -12,8 +12,10 @@ import ActionButton from "@/components/shared/action-button";
 import Logo from "@/components/shared/nodepop-react";
 import type { Credentials } from "./types";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { AuthLoginPending, AuthLoginFulfilled, AuthLoginRejected } from "@/store/actions";
+//import { AuthLoginPending, AuthLoginFulfilled, AuthLoginRejected } from "@/store/actions";
 import { getUi } from "@/store/selectors";
+import { authLogin } from "@/store/actions";
+//import { setAuthorizationHeader } from "@/api/client";
 
 function LoginForm({
   onSubmit,
@@ -25,7 +27,7 @@ function LoginForm({
     password: "",
   });
 
-  const dispatch = useAppDispatch();//metemos aqui es appDispatch
+  //const dispatch = useAppDispatch();//metemos aqui es appDispatch
   const { pending } = useAppSelector(getUi); //nos conectamos a redux para saber si estamos haciendo la llamada al pending
   const { resetError } = useErrorHandler(); //hook para manejar errores
   const [submitting, setSubmitting] = useState(false);
@@ -41,12 +43,16 @@ function LoginForm({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const remember = !!formData.get("remember");
+
+    //await dispatch(authLogin(credentials))
+    //navigate(location.state?.from ?? "/", { replace: true });
+
     try {
       setSubmitting(true);
       await onSubmit({ ...credentials, remember });
     } catch (error) {
       if (isApiClientError(error)) {
-        dispatch(AuthLoginRejected(error)) //dispatch para que en caso de error nos de el rejected de redux
+        //dispatch(AuthLoginRejected(error)) //dispatch para que en caso de error nos de el rejected de redux
         toast.error(error.message);
       } else {
         //dispatch(uiResetError)
@@ -132,9 +138,10 @@ export default function LoginPage() {
         </header>
         <LoginForm
           onSubmit={async ({ remember, ...credentials }) => {
-            dispatch(AuthLoginPending())
-            await login(credentials, remember);
-            dispatch(AuthLoginFulfilled())
+            //dispatch(AuthLoginPending()) //Inicia la accion de Login
+            await dispatch(authLogin(credentials, remember)); //usamos el authLogin
+            //await login(credentials, remember);
+            //dispatch(AuthLoginFulfilled())
             //onLogin();
             navigate(location.state?.from ?? "/", { replace: true });
           }}
