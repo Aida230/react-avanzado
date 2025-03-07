@@ -1,17 +1,15 @@
-import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
+import { type ChangeEvent, type FormEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
-import { useErrorHandler } from "@/api/error";
 import FormField from "@/components/shared/form-field";
 import ActionButton from "@/components/shared/action-button";
 import Logo from "@/components/shared/nodepop-react";
 import type { Credentials } from "./types";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getUi } from "@/store/selectors";
-import { authLogin } from "@/store/actions";
+import { authLogin, uiResetError } from "@/store/actions";
 
 function LoginForm({
   onSubmit,
@@ -22,9 +20,8 @@ function LoginForm({
     email: "",
     password: "",
   });
-
-  const { pending } = useAppSelector(getUi); //nos conectamos a redux para saber si estamos haciendo la llamada al pending
-  const { resetError } = useErrorHandler(); //hook para manejar errores
+  const dispatch = useAppDispatch(); //Guarda el estado de redux en dispatch  
+  const { pending, error } = useAppSelector(getUi); //nos conectamos a redux para saber si estamos haciendo la llamada al pending
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCredentials((credentials) => ({
@@ -37,11 +34,6 @@ function LoginForm({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const remember = !!formData.get("remember");
-
-    //await dispatch(authLogin(credentials))
-    //navigate(location.state?.from ?? "/", { replace: true });
-
-    resetError(); //Reseteamos el error antes de un nuevo intento
     await onSubmit({ ...credentials, remember });
   };
 
@@ -88,6 +80,12 @@ function LoginForm({
               ? "Log in to Nodepop"
               : "Enter your credentials"}
         </ActionButton>
+        {error && (
+          <div className="flex items-center justify-center text-center border border-red-500 bg-red-100 text-red-800 font-semibold p-4 rounded-md mt-4 text-sm cursor-pointer" onClick={() => dispatch(uiResetError())}>
+            {error.message || "An error has occurred"}
+            
+          </div>
+        )}
       </form>
       <Toaster position="bottom-center" richColors />
     </div>
@@ -98,15 +96,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();//Guarda el estado de redux en dispatch
-  const { error } = useAppSelector(getUi); //Obtener el error del estado de redux
-  //const { onLogin } = useAuth();
-
-  //Mostrar el error si existe
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message); //si hay un error mostramos el mensaje de error
-    }
-  }, [error]);
 
   return (
     <div className="mx-auto h-dvh max-w-md">
