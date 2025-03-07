@@ -4,7 +4,7 @@ import type { Actions } from "./actions";
 //en los reducer lo primero que hacemos es definir el estado, el objeto con la forma de mi estado
 export type State = {
   auth: boolean;
-  adverts: Advert[];
+  adverts: Advert[] | null;
   tags: Tags,
   ui: {
     pending: boolean,
@@ -15,7 +15,7 @@ export type State = {
 //cuando inicialicemos el estado vamos a estar sin autenticar y no vamos a tener anuncios
 const defaultState: State = {
   auth: false,
-  adverts: [],
+  adverts: null,
   tags: [] as Tags,
   ui: {
     pending: false,
@@ -39,15 +39,15 @@ export function auth(state = defaultState.auth, action: Actions): State["auth"] 
 //reducer para el listado de anuncios
 export function adverts(state = defaultState.adverts, action: Actions): State["adverts"] {
   switch (action.type) {
-    case "adverts/loaded":
+    case "adverts/loaded/fulfilled":
       return action.payload;
     case "adverts/created":
       //return state.concat(action.payload)
-      return [ ...state, action.payload ];
+      return [ ...(state ?? []), action.payload ];
     case "advert/detail":
-      return [ ...state, action.payload]; //detalle del anuncio
+      return [ ...(state ?? []), action.payload]; //detalle del anuncio
     case "adverts/deleted":
-      return state.filter(advert => (advert.id )!== action.payload);
+      return (state ?? []).filter(advert => (advert.id )!== action.payload);
     default:
       return state
   }

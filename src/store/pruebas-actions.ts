@@ -2,8 +2,8 @@ import type { Credentials } from "@/pages/auth/types";
 import type { Advert, Tags } from "../pages/adverts/types";
 import { login } from "@/pages/auth/service";
 import { isApiClientError } from "@/api/error";
-//import type { ThunkAction } from "redux-thunk";
 import type { AppThunk } from ".";
+import { getAdverts } from "@/pages/adverts/service";
 
 //primero creamos las acciones que queremos manejar
 
@@ -28,10 +28,14 @@ type AuthLogout = {
 };
 
 //Carga de anuncios
+type AdvertsLoaded = {
+  type: "adverts/loaded";
+  payload: Advert[],
+};
 
 type AdvertsLoadedPending = {
   type: "adverts/loaded/pending";
-  payload: Advert[],
+  payload: [],
 };
 
 type AdvertsLoadedFulfilled = {
@@ -41,14 +45,14 @@ type AdvertsLoadedFulfilled = {
 
 type AdvertsLoadedRejected = {
   type: "adverts/loaded/Rejected";
-  payload: Advert[],
+  payload: Error,
 };
 
 // Creación de anuncios
 
 type AdvertsCreatedPending = {
   type: "adverts/created/pending",
-  payload: Advert;
+  payload: [];
 };
 
 type AdvertsCreatedFulfilled = {
@@ -58,14 +62,14 @@ type AdvertsCreatedFulfilled = {
 
 type AdvertsCreatedRejected = {
   type: "adverts/created/rejected",
-  payload: Advert;
+  payload: Error;
 };
 
 // Detalle de anuncio
 
 type AdvertDetailPending = {
   type: "advert/detail/pendig";
-  payload: Advert;
+  payload: [];
 };
 
 type AdvertDetailFulfilled = {
@@ -75,14 +79,14 @@ type AdvertDetailFulfilled = {
 
 type AdvertDetailRejected = {
   type: "advert/detail/rejected";
-  payload: Advert;
+  payload: Error;
 };
 
 // Borrado de anuncio
 
 type AdvertsDeletedPending = {
   type: "adverts/deleted/pending";
-  payload: string; // ID del anuncio eliminado
+  payload: ""; // ID del anuncio eliminado
 };
 
 type AdvertsDeletedFulfilled = {
@@ -92,14 +96,14 @@ type AdvertsDeletedFulfilled = {
 
 type AdvertsDeletedRejected = {
   type: "adverts/deleted/rejected";
-  payload: string; // ID del anuncio eliminado
+  payload: Error; // ID del anuncio eliminado
 };
 
 //Carga de Tags
 
 type TagsLoadedPending = {
   type: "tags/loaded/pending";
-  payload: Tags; // Lista de tags disponibles
+  payload: []; // Lista de tags disponibles
 };
 
 type TagsLoadedFulfilled = {
@@ -109,7 +113,7 @@ type TagsLoadedFulfilled = {
 
 type TagsLoadedRejected = {
   type: "tags/loaded/rejected";
-  payload: Tags; // Lista de tags disponibles
+  payload: Error; // Lista de tags disponibles
 };
 
 type UiResetError = {
@@ -153,10 +157,16 @@ export const AuthLogout = (): AuthLogout => ({
 });
 
 //Action creators para Loaded
-
-export const AdvertsLoadedPending = (adverts: Advert[]): AdvertsLoadedPending => ({
-  type: "adverts/loaded/pending",
+//en este aso necesita de su payload como parametro
+export const AdvertsLoaded = (adverts: Advert[]): AdvertsLoaded => ({
+  type: "adverts/loaded",
   payload: adverts,
+}); 
+
+
+export const AdvertsLoadedPending = (): AdvertsLoadedPending => ({
+  type: "adverts/loaded/pending",
+  payload: [],
 });
 
 export const AdvertsLoadedFulfilled = (adverts: Advert[]): AdvertsLoadedFulfilled => ({
@@ -164,17 +174,22 @@ export const AdvertsLoadedFulfilled = (adverts: Advert[]): AdvertsLoadedFulfille
   payload: adverts,
 });
 
-export const AdvertsLoadedRejectd = (adverts: Advert[]): AdvertsLoadedRejected => ({
+export const AdvertsLoadedRejectd = (error: Error): AdvertsLoadedRejected => ({
   type: "adverts/loaded/Rejected",
-  payload: adverts,
+  payload: error,
 });
 
+//Middleware
+
+export functon advertsLoaded(): AppThunk<Promise<void>> {
+  return async function(deispact)
+}
 
 //Action creators para Created
 
-export const AdvertsCreatedPending = (advert: Advert): AdvertsCreatedPending => ({
+export const AdvertsCreatedPending = (): AdvertsCreatedPending => ({
   type: "adverts/created/pending",
-  payload: advert,
+  payload: [],
 });
 
 export const AdvertsCreatedFulfilled = (advert: Advert): AdvertsCreatedFulfilled => ({
@@ -182,17 +197,17 @@ export const AdvertsCreatedFulfilled = (advert: Advert): AdvertsCreatedFulfilled
   payload: advert,
 });
 
-export const AdvertsCreatedRejected = (advert: Advert): AdvertsCreatedRejected => ({
+export const AdvertsCreatedRejected = (error: Error): AdvertsCreatedRejected => ({
   type: "adverts/created/rejected",
-  payload: advert,
+  payload: error,
 });
 
 
 //Action creators para Detail
 
-export const AdvertDetailPending = (advert: Advert): AdvertDetailPending => ({
+export const AdvertDetailPending = (): AdvertDetailPending => ({
   type: "advert/detail/pendig",
-  payload: advert,
+  payload: [],
 })
 
 export const AdvertDetailFulfilled = (advert: Advert): AdvertDetailFulfilled => ({
@@ -200,16 +215,17 @@ export const AdvertDetailFulfilled = (advert: Advert): AdvertDetailFulfilled => 
   payload: advert,
 })
 
-export const AdvertDetailRejected = (advert: Advert): AdvertDetailRejected => ({
+export const AdvertDetailRejected = (error: Error): AdvertDetailRejected => ({
   type: "advert/detail/rejected",
-  payload: advert,
+  payload: error,
 })
+
 
 //Action creators para Delete
 
-export const AdvertsDeletedPending = (advertId: string): AdvertsDeletedPending => ({
+export const AdvertsDeletedPending = (): AdvertsDeletedPending => ({
   type: "adverts/deleted/pending",
-  payload: advertId,
+  payload: "",
 });
 
 export const AdvertsDeletedFulfilled = (advertId: string): AdvertsDeletedFulfilled => ({
@@ -217,17 +233,17 @@ export const AdvertsDeletedFulfilled = (advertId: string): AdvertsDeletedFulfill
   payload: advertId,
 });
 
-export const AdvertsDeletedRejected = (advertId: string): AdvertsDeletedRejected => ({
+export const AdvertsDeletedRejected = (error: Error): AdvertsDeletedRejected => ({
   type: "adverts/deleted/rejected",
-  payload: advertId,
+  payload: error,
 });
 
 
 //Action creators para Tags
 
-export const TagsLoadedPending = (tags: string[]): TagsLoadedPending => ({
+export const TagsLoadedPending = (): TagsLoadedPending => ({
   type: "tags/loaded/pending",
-  payload: tags,
+  payload: [],
 });
 
 export const TagsLoadedFulfilled = (tags: string[]): TagsLoadedFulfilled => ({
@@ -235,9 +251,9 @@ export const TagsLoadedFulfilled = (tags: string[]): TagsLoadedFulfilled => ({
   payload: tags,
 });
 
-export const TagsLoadedRejected = (tags: string[]): TagsLoadedRejected => ({
+export const TagsLoadedRejected = (error: Error): TagsLoadedRejected => ({
   type: "tags/loaded/rejected",
-  payload: tags,
+  payload: error,
 });
 
 // Action creators para reset

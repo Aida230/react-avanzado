@@ -4,6 +4,8 @@ import { login } from "@/pages/auth/service";
 import { isApiClientError } from "@/api/error";
 //import type { ThunkAction } from "redux-thunk";
 import type { AppThunk } from ".";
+import { getAdverts } from "@/pages/adverts/service";
+//import { getAdvertsSelector } from "./selectors";
 
 //primero creamos las acciones que queremos manejar
 
@@ -30,9 +32,19 @@ type AuthLogout = {
 
 //manejamos la carga de anuncios
 
-type AdvertsLoaded = {
-  type: "adverts/loaded";
+type AdvertsLoadedPending = {
+  type: "adverts/loaded/pending";
+  payload: [],
+};
+
+type AdvertsLoadedFulfilled = {
+  type: "adverts/loaded/fulfilled";
   payload: Advert[],
+};
+
+type AdvertsLoadedRejected = {
+  type: "adverts/loaded/Rejected";
+  payload: Error,
 };
 
 
@@ -62,7 +74,6 @@ type UiResetError = {
 
 
 //Actions creators para login
-
 
 export const AuthLoginPending = (): AuthLoginPending => ({
   type: "auth/login/pending",
@@ -98,11 +109,44 @@ export const AuthLogout = (): AuthLogout => ({
   type: "auth/logout",
 });
 
-//en este aso necesita de su payload como parametro
-export const AdvertsLoaded = (adverts: Advert[]): AdvertsLoaded => ({
-  type: "adverts/loaded",
+//Actions creators para anuncios
+
+export const AdvertsLoadedPending = (): AdvertsLoadedPending => ({
+  type: "adverts/loaded/pending",
+  payload: [],
+});
+
+export const AdvertsLoadedFulfilled = (adverts: Advert[]): AdvertsLoadedFulfilled => ({
+  type: "adverts/loaded/fulfilled",
   payload: adverts,
-}); 
+});
+
+export const AdvertsLoadedRejected = (error: Error): AdvertsLoadedRejected => ({
+  type: "adverts/loaded/Rejected",
+  payload: error,
+});
+
+//Middleware
+
+export function advertsLoaded(): AppThunk<Promise<void>> {
+  return async function (dispatch, getState) {
+    const state = getState();
+    if (state.adverts) {
+      return;
+    }
+    dispatch(AdvertsLoadedPending());
+    try {
+      const adverts = await getAdverts();
+      dispatch(AdvertsLoadedFulfilled(adverts));
+    } catch (error) {
+      if (isApiClientError(error)) {
+        dispatch(AdvertsLoadedRejected(error))
+      }
+    }
+  }
+}
+
+//Actions creators para crear anuncios
 
 export const AdvertsCreated = (advert: Advert): AdvertsCreated => ({
   type: "adverts/created",
@@ -128,7 +172,19 @@ export const uiResetError = (): UiResetError => ({
   type: "ui/reset-error",
 });
 
-export type Actions = AuthLoginPending | AuthLoginFulfilled | AuthLoginRejected | AuthLogout | AdvertsLoaded | AdvertsCreated | AdvertDetail| AdvertsDeleted | TagsLoaded | UiResetError;
+export type Actions = 
+AuthLoginPending | 
+AuthLoginFulfilled | 
+AuthLoginRejected | 
+AuthLogout | 
+AdvertsLoadedPending | 
+AdvertsLoadedFulfilled | 
+AdvertsLoadedRejected | 
+AdvertsCreated | 
+AdvertDetail| 
+AdvertsDeleted | 
+TagsLoaded | 
+UiResetError;
 
 
 

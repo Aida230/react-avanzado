@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Euro, SearchX } from "lucide-react";
-import { isApiClientError } from "@/api/error";
+//import { isApiClientError, useErrorHandler } from "@/api/error";
 import { Button } from "@/components/ui/button";
-import { getAdverts } from "./service";
+//import { getAdverts } from "./service";
 import { filterAdverts } from "./filters";
 import FiltersInputs from "./components/filters-inputs";
 import { AdvertCard } from "./components/advert-card";
 import type { Filters } from "./types";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { AdvertsLoaded } from "@/store/actions";
-import { getAdvertsSelector } from "@/store/selectors";
+import { advertsLoaded } from "@/store/actions";
+import { getAdvertsSelector, getUi } from "@/store/selectors";
 
 function NoAdverts() {
   return (
@@ -53,36 +53,47 @@ export default function AdvertsPage() {
   //const [adverts, setAdverts] = useState<Advert[] | null>(null);
   const adverts = useAppSelector(getAdvertsSelector);
   const dispatch = useAppDispatch();
-  const [isLoading, setIsLoading] = useState(false);
-  const [, setError] = useState<null>(null);
+  const { pending, error} = useAppSelector(getUi);
+  //const [isLoading, setIsLoading] = useState(false);
+  //const [, setError] = useState<null>(null);
   const [filters, setFilters] = useState<Filters | null>(null);
 
   useEffect(() => {
     async function loadAdverts() {
-      try {
-        setIsLoading(true);
-        const adverts = await getAdverts();
+      await dispatch(advertsLoaded())
+      //try {
+        //setIsLoading(true);
+        //const adverts = await getAdverts();
         //setAdverts(adverts);
-        dispatch(AdvertsLoaded(adverts))
+        //dispatch(AdvertsLoadedFulfilled(adverts))
 
-      } catch (error) {
-        if (isApiClientError(error)) {
-          if (error.code === "UNAUTHORIZED") {
-            return navigate("/login");
-          }
-        }
-        setError(() => {
-          throw error;
-        });
-      } finally {
-        setIsLoading(false);
-      }
+      //} catch (error) {
+        //if (isApiClientError(error)) {
+          //if (error.code === "UNAUTHORIZED") {
+           // return navigate("/login");
+          //}
+        //}
+        //setError(() => {
+          //throw error;
+       // });
+      //} finally {
+        //setIsLoading(false);
+      //}
     }
     loadAdverts();
-  }, [navigate]);
+  }, [dispatch, navigate]);
 
-  if (!adverts || isLoading) {
+  if (!adverts || pending) {
     return "Loading....";
+  }
+
+  // Si hay un error, lo mostramos
+  if (error) {
+    return (
+      <div className="error-message">
+        <p>Error: {error.message || "An unexpected error occurred"}</p>
+      </div>
+    );
   }
 
   if (!adverts.length) {
