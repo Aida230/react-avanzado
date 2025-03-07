@@ -2,10 +2,9 @@ import type { Credentials } from "@/pages/auth/types";
 import type { Advert, Tags } from "../pages/adverts/types";
 import { login } from "@/pages/auth/service";
 import { isApiClientError } from "@/api/error";
-//import type { ThunkAction } from "redux-thunk";
 import type { AppThunk } from ".";
-import { getAdverts } from "@/pages/adverts/service";
-//import { getAdvertsSelector } from "./selectors";
+import { createAdvert, getAdverts } from "@/pages/adverts/service";
+//import { adverts } from "./reducers";
 
 //primero creamos las acciones que queremos manejar
 
@@ -47,26 +46,45 @@ type AdvertsLoadedRejected = {
   payload: Error,
 };
 
+//Creacion de anuncios
+type AdvertsCreatedPending = {
+  type: "adverts/created/pending",
+  payload: [];
+};
 
-type AdvertsCreated = {
-  type: "adverts/created",
+type AdvertsCreatedFulfilled = {
+  type: "adverts/created/fulfilled",
   payload: Advert;
 };
+
+type AdvertsCreatedRejected = {
+  type: "adverts/created/rejected",
+  payload: Error;
+};
+
+
+//Detalle de anuncio
 
 type AdvertDetail = {
   type: "advert/detail";
   payload: Advert;
 };
 
+//Eliminacion de anuncios
+
 type AdvertsDeleted = {
   type: "adverts/deleted";
   payload: string; // ID del anuncio eliminado
 };
 
+//Carga de tags
+
 type TagsLoaded = {
   type: "tags/loaded";
   payload: Tags; // Lista de tags disponibles
 };
+
+//Resetear errores
 
 type UiResetError = {
   type: "ui/reset-error"
@@ -148,10 +166,45 @@ export function advertsLoaded(): AppThunk<Promise<void>> {
 
 //Actions creators para crear anuncios
 
-export const AdvertsCreated = (advert: Advert): AdvertsCreated => ({
-  type: "adverts/created",
+export const AdvertsCreatedPending = (): AdvertsCreatedPending => ({
+  type: "adverts/created/pending",
+  payload: [],
+});
+
+export const AdvertsCreatedFulfilled = (advert: Advert): AdvertsCreatedFulfilled => ({
+  type: "adverts/created/fulfilled",
   payload: advert,
 });
+
+export const AdvertsCreatedRejected = (error: Error): AdvertsCreatedRejected => ({
+  type: "adverts/created/rejected",
+  payload: error,
+});
+
+//Middleware
+
+export function advertsCreate(advertContent: Pick<Advert, "tags" | "name" | "sale" | "price"> & { photo?: File }): AppThunk<Promise<void>> {
+  return async function (dispatch) {
+    dispatch(AdvertsCreatedPending());
+    try {
+      // Creamos el anuncio con los datos correctos
+      const createdAdvert = await createAdvert(advertContent);
+      
+      // Despachamos la acción con el anuncio recién creado
+      dispatch(AdvertsCreatedFulfilled(createdAdvert));
+
+      // Recargamos la lista de anuncios para asegurarnos de que la UI esté actualizada
+      const adverts = await getAdverts();
+      dispatch(AdvertsLoadedFulfilled(adverts));
+    } catch (error) {
+      if (isApiClientError(error)) {
+        dispatch(AdvertsCreatedRejected(error));
+      }
+    }
+  };
+}
+
+//Actions creators para detalle de anuncio
 
 export const AdvertDetail = (advert: Advert): AdvertDetail => ({
   type: "advert/detail",
@@ -180,7 +233,9 @@ AuthLogout |
 AdvertsLoadedPending | 
 AdvertsLoadedFulfilled | 
 AdvertsLoadedRejected | 
-AdvertsCreated | 
+AdvertsCreatedPending |
+AdvertsCreatedFulfilled |
+AdvertsCreatedRejected |  
 AdvertDetail| 
 AdvertsDeleted | 
 TagsLoaded | 

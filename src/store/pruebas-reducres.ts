@@ -118,35 +118,3 @@ export function ui(state = defaultState.ui, action: Actions): State["ui"] {
 }
 
 
-
-
-
-
-
-
-
-
-  useEffect(() => {
-    dispatch(advertsLoaded())
-    async function loadAdverts() {
-      //try {
-        //setIsLoading(true);
-        //const adverts = await getAdverts();
-        //setAdverts(adverts);
-        //dispatch(AdvertsLoadedFulfilled(adverts))
-
-      //} catch (error) {
-        //if (isApiClientError(error)) {
-          //if (error.code === "UNAUTHORIZED") {
-           // return navigate("/login");
-          //}
-        //}
-        //setError(() => {
-          //throw error;
-       // });
-      //} finally {
-        //setIsLoading(false);
-      //}
-    }
-    loadAdverts();
-  }, [navigate]);

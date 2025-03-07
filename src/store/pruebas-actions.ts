@@ -49,6 +49,11 @@ type AdvertsLoadedRejected = {
 };
 
 // Creación de anuncios
+type AdvertsCreated = {
+  type: "adverts/created",
+  payload: Advert;
+};
+
 
 type AdvertsCreatedPending = {
   type: "adverts/created/pending",
@@ -179,13 +184,12 @@ export const AdvertsLoadedRejectd = (error: Error): AdvertsLoadedRejected => ({
   payload: error,
 });
 
-//Middleware
-
-export functon advertsLoaded(): AppThunk<Promise<void>> {
-  return async function(deispact)
-}
 
 //Action creators para Created
+export const AdvertsCreated = (advert: Advert): AdvertsCreated => ({
+  type: "adverts/created",
+  payload: advert,
+});
 
 export const AdvertsCreatedPending = (): AdvertsCreatedPending => ({
   type: "adverts/created/pending",

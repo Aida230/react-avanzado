@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { isApiClientError } from "@/api/error";
-import { createAdvert } from "./service";
 import type { ChangeEvent, FormEvent } from "react";
 import type { Tags } from "./types";
 import TagsSelector from "./components/tags-selector";
@@ -13,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import InputPhoto from "@/components/shared/input-photo";
 import { useAppDispatch } from "@/store";
-import { AdvertsCreated } from "@/store/actions";
+import { advertsCreate } from "@/store/actions";
 
 function validatePrice(value: FormDataEntryValue | null): number {
   try {
@@ -57,15 +56,17 @@ export default function NewAdvertPage() {
 
     try {
       setLoading(true);
-      const createdAdvert = await createAdvert({
-        name,
-        sale,
-        price,
-        tags,
-        photo,
-      });
-      dispatch(AdvertsCreated(createdAdvert))//este es el dispatch
-      navigate(`/adverts/${createdAdvert.id}`);
+      await dispatch(advertsCreate({ name, sale, price, tags, photo }));
+      //const createdAdvert = await createAdvert({
+        //name,
+        //sale,
+        //price,
+        //tags,
+        //photo,
+      //});
+      //dispatch(AdvertsCreatedFulfilled(createdAdvert))//este es el dispatch
+      navigate("/adverts"); 
+      //navigate(`/adverts/${createdAdvert.id}`);
     } catch (error) {
       if (isApiClientError(error)) {
         if (error.code === "UNAUTHORIZED") {

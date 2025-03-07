@@ -41,7 +41,7 @@ export function adverts(state = defaultState.adverts, action: Actions): State["a
   switch (action.type) {
     case "adverts/loaded/fulfilled":
       return action.payload;
-    case "adverts/created":
+    case "adverts/created/fulfilled":
       //return state.concat(action.payload)
       return [ ...(state ?? []), action.payload ];
     case "advert/detail":
