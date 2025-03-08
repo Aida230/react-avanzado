@@ -55,9 +55,7 @@ export function adverts(state = defaultState.adverts, action: Actions): State["a
     case "advert/detail/pending":
       return state; // No cambiamos nada hasta que se cargue el anuncio
     case "advert/detail/fulfilled":
-      return (state ?? []).map(ad =>
-        ad.id === action.payload.id ? action.payload : ad
-      ); // Reemplazamos el anuncio actualizado sin duplicarlo
+      return [...(state ?? []), action.payload]; // Reemplazamos el anuncio actualizado sin duplicarlo
     case "advert/detail/rejected":
       return state; // No cambiamos el estado si falla la carga del detalle
     //Eliminación de un anuncio

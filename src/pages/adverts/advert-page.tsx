@@ -10,7 +10,7 @@ import ActionButton from "@/components/shared/action-button";
 import imagePlacehoder from "@/assets/placeholder.webp";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getAdvertSelector } from "@/store/selectors";
-import {  advertDetail, advertsDelete } from "@/store/actions";
+import {  advertDetail, advertsDelete, } from "@/store/actions";
 import { loadTagsMiddle } from "@/store/actions";
 
 

@@ -5,6 +5,7 @@ import { isApiClientError } from "@/api/error";
 import type { AppThunk } from ".";
 import { createAdvert, deleteAdvert, getAdvert, getAdverts, getTags } from "@/pages/adverts/service";
 
+
 //primero creamos las acciones que queremos manejar
 
 //manejamos si el usuario esta logado o no
@@ -220,7 +221,6 @@ export function advertsCreate(advertContent: Pick<Advert, "tags" | "name" | "sal
     try {
       // Creamos el anuncio con los datos correctos
       const createdAdvert = await createAdvert(advertContent);
-      
       // Despachamos la acción con el anuncio recién creado
       dispatch(AdvertsCreatedFulfilled(createdAdvert));
 
