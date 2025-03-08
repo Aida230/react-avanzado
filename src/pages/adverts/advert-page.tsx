@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { deleteAdvert, getAdvert, getTags } from "./service";
+import { deleteAdvert, getTags } from "./service";
 import { isApiClientError } from "@/api/error";
 import ConfirmationButton from "@/components/shared/confirmation-button";
 import type { Tags } from "./types";
@@ -11,7 +11,7 @@ import ActionButton from "@/components/shared/action-button";
 import imagePlacehoder from "@/assets/placeholder.webp";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getAdvertSelector } from "@/store/selectors";
-import {  AdvertDetail, AdvertsDeleted, } from "@/store/actions";
+import {  advertDetail, AdvertsDeleted, } from "@/store/actions";
 import { TagsLoaded } from "@/store/actions";
 
 
@@ -68,13 +68,13 @@ const AdvertPhoto = ({
 export default function AdvertPage() {
   const navigate = useNavigate();
   const params = useParams();
-  //const [advert, setAdvert] = useState<Advert | null>(null);
   const dispatch = useAppDispatch();
   const advertId = params.advertId ?? "";
   // Acceder directamente al estado de redux
   const advert = useAppSelector(state => getAdvertSelector(state, params.advertId));
   const tags = useAppSelector(state => state.tags); //Los tags disponibles
-  const [loading, setLoading] = useState(false);
+  const loading = useAppSelector((state) => state.ui.pending);
+  //const [loading, setLoading] = useState(false);
   const [, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -99,15 +99,7 @@ export default function AdvertPage() {
 
   useEffect(() => {
     async function loadAdvert() {
-      try {
-        setLoading(true);
-        const advert = await getAdvert(advertId);
-        dispatch(AdvertDetail(advert));
-      } catch (error) {
-        handleError(error);
-      } finally {
-        setLoading(false);
-      }
+        dispatch(advertDetail(advertId));
     }
     loadAdvert();
   }, [advertId, dispatch, handleError]);

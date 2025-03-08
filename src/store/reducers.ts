@@ -39,13 +39,17 @@ export function auth(state = defaultState.auth, action: Actions): State["auth"] 
 //reducer para el listado de anuncios
 export function adverts(state = defaultState.adverts, action: Actions): State["adverts"] {
   switch (action.type) {
+    case "adverts/loaded/pending":
+      return []; //cargando los anuncios
     case "adverts/loaded/fulfilled":
       return action.payload;
+    case "adverts/created/pending":
+      return [...state?? []]; 
     case "adverts/created/fulfilled":
       //return state.concat(action.payload)
       return [ ...(state ?? []), action.payload ];
-    case "advert/detail":
-      return [ ...(state ?? []), action.payload]; //detalle del anuncio
+      case "advert/detail/fulfilled":
+        return (state ?? []).map(ad => ad.id === action.payload.id ? action.payload : ad); //detalle del anuncio que no se duplique
     case "adverts/deleted":
       return (state ?? []).filter(advert => (advert.id )!== action.payload);
     default:

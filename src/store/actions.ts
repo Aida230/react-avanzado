@@ -3,8 +3,7 @@ import type { Advert, Tags } from "../pages/adverts/types";
 import { login } from "@/pages/auth/service";
 import { isApiClientError } from "@/api/error";
 import type { AppThunk } from ".";
-import { createAdvert, getAdverts } from "@/pages/adverts/service";
-//import { adverts } from "./reducers";
+import { createAdvert, getAdvert, getAdverts } from "@/pages/adverts/service";
 
 //primero creamos las acciones que queremos manejar
 
@@ -65,9 +64,21 @@ type AdvertsCreatedRejected = {
 
 //Detalle de anuncio
 
-type AdvertDetail = {
-  type: "advert/detail";
+type AdvertDetailPending = {
+  type: "advert/detail/pending";
+  payload: [];
+};
+
+
+type AdvertDetailFulfilled = {
+  type: "advert/detail/fulfilled";
   payload: Advert;
+};
+
+
+type AdvertDetailRejected = {
+  type: "advert/detail/rejected";
+  payload: Error;
 };
 
 //Eliminacion de anuncios
@@ -206,10 +217,39 @@ export function advertsCreate(advertContent: Pick<Advert, "tags" | "name" | "sal
 
 //Actions creators para detalle de anuncio
 
-export const AdvertDetail = (advert: Advert): AdvertDetail => ({
-  type: "advert/detail",
+export const AdvertDetailPending = (): AdvertDetailPending => ({
+  type: "advert/detail/pending",
+  payload: [],
+});
+
+export const AdvertDetailFulfilled = (advert: Advert): AdvertDetailFulfilled => ({
+  type: "advert/detail/fulfilled",
   payload: advert,
-})
+});
+
+export const AdvertDetailRejected = (error: Error): AdvertDetailRejected => ({
+  type: "advert/detail/rejected",
+  payload: error,
+});
+
+//Middleware detalle de anuncio
+
+export function advertDetail(advertId: string): AppThunk<Promise<void>> {
+  return async function (dispatch) {
+    dispatch(AdvertDetailPending());
+    try {
+      const advert = await getAdvert(advertId);
+      dispatch(AdvertDetailFulfilled(advert));
+    } catch (error) {
+      if (isApiClientError(error)) {
+        dispatch(AdvertDetailRejected(error));
+      }
+    }
+  }
+}
+
+
+//Actions creators para eliminar anuncios
 
 export const AdvertsDeleted = (advertId: string): AdvertsDeleted => ({
   type: "adverts/deleted",
@@ -236,7 +276,9 @@ AdvertsLoadedRejected |
 AdvertsCreatedPending |
 AdvertsCreatedFulfilled |
 AdvertsCreatedRejected |  
-AdvertDetail| 
+AdvertDetailPending |
+AdvertDetailFulfilled |
+AdvertDetailRejected |  
 AdvertsDeleted | 
 TagsLoaded | 
 UiResetError;
