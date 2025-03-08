@@ -39,29 +39,45 @@ export function auth(state = defaultState.auth, action: Actions): State["auth"] 
 //reducer para el listado de anuncios
 export function adverts(state = defaultState.adverts, action: Actions): State["adverts"] {
   switch (action.type) {
+    //Carga de anuncios
     case "adverts/loaded/pending":
-      return []; //cargando los anuncios
+      return []; // Se indica que se está cargando
     case "adverts/loaded/fulfilled":
       return action.payload;
+    //Creación de un anuncio
     case "adverts/created/pending":
-      return [...state?? []]; 
+      return [...(state ?? [])]; // Mantenemos el estado actual mientras se crea
     case "adverts/created/fulfilled":
-      //return state.concat(action.payload)
-      return [ ...(state ?? []), action.payload ];
-      case "advert/detail/fulfilled":
-        return (state ?? []).map(ad => ad.id === action.payload.id ? action.payload : ad); //detalle del anuncio que no se duplique
-    case "adverts/deleted":
-      return (state ?? []).filter(advert => (advert.id )!== action.payload);
+      return [...(state ?? []), action.payload]; // Agregamos el nuevo anuncio
+    case "adverts/created/rejected":
+      return state; // No cambiamos el estado si falla la creación
+    //Detalle de un anuncio
+    case "advert/detail/pending":
+      return state; // No cambiamos nada hasta que se cargue el anuncio
+    case "advert/detail/fulfilled":
+      return (state ?? []).map(ad =>
+        ad.id === action.payload.id ? action.payload : ad
+      ); // Reemplazamos el anuncio actualizado sin duplicarlo
+    case "advert/detail/rejected":
+      return state; // No cambiamos el estado si falla la carga del detalle
+    //Eliminación de un anuncio
+    case "adverts/deleted/pending":
+      return state; // Mantenemos el estado actual hasta que la eliminación sea exitosa
+    case "adverts/deleted/fulfilled":
+      return (state ?? []).filter(advert => advert.id !== action.payload); // Eliminamos el anuncio de la lista
+    case "adverts/deleted/rejected":
+      return state; // No cambiamos el estado si falla la eliminación
     default:
-      return state
+      return state;
   }
-};
+}
+
 
 
 // Reducer para manejar los tags
 export function tags(state = defaultState.tags, action: Actions): State["tags"] {
   switch (action.type) {
-    case "tags/loaded":
+    case "tags/loaded/fulfilled":
       return action.payload;  // Cargamos los tags
     default:
       return state;

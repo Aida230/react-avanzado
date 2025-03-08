@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { deleteAdvert, getTags } from "./service";
 import { isApiClientError } from "@/api/error";
 import ConfirmationButton from "@/components/shared/confirmation-button";
 import type { Tags } from "./types";
@@ -11,8 +10,8 @@ import ActionButton from "@/components/shared/action-button";
 import imagePlacehoder from "@/assets/placeholder.webp";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { getAdvertSelector } from "@/store/selectors";
-import {  advertDetail, AdvertsDeleted, } from "@/store/actions";
-import { TagsLoaded } from "@/store/actions";
+import {  advertDetail, advertsDelete } from "@/store/actions";
+import { loadTagsMiddle } from "@/store/actions";
 
 
 const tagsClassNames: Record<string, string> = {
@@ -20,16 +19,6 @@ const tagsClassNames: Record<string, string> = {
   mobile: "bg-chart-2",
   motor: "bg-chart-3",
   work: "bg-chart-4",
-};
-
-const loadTags = async (dispatch: ReturnType<typeof useAppDispatch>) => {
-  try {
-    // Asegúrate de que esta función devuelve los tags de la API o fuente de datos
-    const response: Tags = await getTags(); // Llamda al API para obtener los datos
-    dispatch(TagsLoaded(response)); // Despacha los tags a Redux
-  } catch (error) {
-    console.error("Error loading tags:", error);
-  }
 };
 
 const AdvertPrice = ({ price }: { price: number }) => (
@@ -74,7 +63,6 @@ export default function AdvertPage() {
   const advert = useAppSelector(state => getAdvertSelector(state, params.advertId));
   const tags = useAppSelector(state => state.tags); //Los tags disponibles
   const loading = useAppSelector((state) => state.ui.pending);
-  //const [loading, setLoading] = useState(false);
   const [, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -107,7 +95,7 @@ export default function AdvertPage() {
   // Cargar los tags si no están disponibles en el estado
   useEffect(() => {
     if (tags.length === 0) {
-      loadTags(dispatch); // Solo cargar los tags si no están ya en el estado
+      dispatch(loadTagsMiddle());  // Usamos el middleware aquí // Solo cargar los tags si no están ya en el estado
     }
   }, [tags.length, dispatch]);
 
@@ -116,8 +104,8 @@ export default function AdvertPage() {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await deleteAdvert(advertId);
-      dispatch(AdvertsDeleted(advertId)) //aqui es donde despachamos las accion de borrar
+      //await deleteAdvert(advertId);
+      dispatch(advertsDelete(advertId)) //aqui es donde despachamos las accion de borrar
       navigate("/adverts");
     } catch (error) {
       handleError(error);

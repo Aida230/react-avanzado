@@ -3,7 +3,7 @@ import type { Advert, Tags } from "../pages/adverts/types";
 import { login } from "@/pages/auth/service";
 import { isApiClientError } from "@/api/error";
 import type { AppThunk } from ".";
-import { createAdvert, getAdvert, getAdverts } from "@/pages/adverts/service";
+import { createAdvert, deleteAdvert, getAdvert, getAdverts, getTags } from "@/pages/adverts/service";
 
 //primero creamos las acciones que queremos manejar
 
@@ -83,16 +83,36 @@ type AdvertDetailRejected = {
 
 //Eliminacion de anuncios
 
-type AdvertsDeleted = {
-  type: "adverts/deleted";
+type AdvertsDeletedPending = {
+  type: "adverts/deleted/pending";
+  payload: ""; // ID del anuncio eliminado
+};
+
+type AdvertsDeletedFulfilled = {
+  type: "adverts/deleted/fulfilled";
   payload: string; // ID del anuncio eliminado
+};
+
+type AdvertsDeletedRejected = {
+  type: "adverts/deleted/rejected";
+  payload: Error; // ID del anuncio eliminado
 };
 
 //Carga de tags
 
-type TagsLoaded = {
-  type: "tags/loaded";
+type TagsLoadedPending = {
+  type: "tags/loaded/pending";
+  payload: []; // Lista de tags disponibles
+};
+
+type TagsLoadedFulfilled = {
+  type: "tags/loaded/fulfilled";
   payload: Tags; // Lista de tags disponibles
+};
+
+type TagsLoadedRejected = {
+  type: "tags/loaded/rejected";
+  payload: Error; // Lista de tags disponibles
 };
 
 //Resetear errores
@@ -251,16 +271,73 @@ export function advertDetail(advertId: string): AppThunk<Promise<void>> {
 
 //Actions creators para eliminar anuncios
 
-export const AdvertsDeleted = (advertId: string): AdvertsDeleted => ({
-  type: "adverts/deleted",
+export const AdvertsDeletedPending = (): AdvertsDeletedPending => ({
+  type: "adverts/deleted/pending",
+  payload: "",
+});
+
+export const AdvertsDeletedFulfilled = (advertId: string): AdvertsDeletedFulfilled => ({
+  type: "adverts/deleted/fulfilled",
   payload: advertId,
 });
 
-export const TagsLoaded = (tags: string[]): TagsLoaded => ({
-  type: "tags/loaded",
+export const AdvertsDeletedRejected = (error: Error): AdvertsDeletedRejected => ({
+  type: "adverts/deleted/rejected",
+  payload: error,
+});
+
+//Middleware para eliminar anuncios
+
+export function advertsDelete(advertId: string): AppThunk<Promise<void>> {
+  return async function (dispatch) {
+    dispatch(AdvertsDeletedPending());
+    try {
+      await deleteAdvert(advertId);
+      dispatch(AdvertsDeletedFulfilled(advertId));
+    } catch (error) {
+      if (isApiClientError(error)) {
+        dispatch(AdvertsDeletedRejected(error));
+      }
+    }
+  }
+}
+
+
+//Actions creators para cargar tags
+
+export const TagsLoadedPending = ([]): TagsLoadedPending => ({
+  type: "tags/loaded/pending",
+  payload: [],
+});
+
+export const TagsLoadedFulfilled = (tags: string[]): TagsLoadedFulfilled => ({
+  type: "tags/loaded/fulfilled",
   payload: tags,
 });
 
+export const TagsLoadedRejected = (error: Error): TagsLoadedRejected => ({
+  type: "tags/loaded/rejected",
+  payload: error,
+});
+
+//Middleware para cargar tags
+
+export function loadTagsMiddle(): AppThunk<Promise<void>> {
+  return async function (dispatch) {
+    dispatch(TagsLoadedPending([]));
+    try {
+      const tags = await getTags();
+      dispatch(TagsLoadedFulfilled(tags));
+    } catch (error) {
+      if (isApiClientError(error)) {
+        dispatch(TagsLoadedRejected(error));
+      }
+    }
+  }
+}
+
+
+//Actions creators para resetear errores
 export const uiResetError = (): UiResetError => ({
   type: "ui/reset-error",
 });
@@ -279,8 +356,12 @@ AdvertsCreatedRejected |
 AdvertDetailPending |
 AdvertDetailFulfilled |
 AdvertDetailRejected |  
-AdvertsDeleted | 
-TagsLoaded | 
+AdvertsDeletedPending |
+AdvertsDeletedFulfilled |
+AdvertsDeletedRejected |
+TagsLoadedPending | 
+TagsLoadedFulfilled |
+TagsLoadedRejected | 
 UiResetError;
 
 
