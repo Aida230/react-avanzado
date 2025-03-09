@@ -7,6 +7,8 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [tsconfigPaths(), tailwindcss(), react()],
   test: { 
-    globals: true
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./vitest.setup.ts",
   },
 });
